@@ -21,17 +21,25 @@
 
 from Crypto.Cipher import AES
 
-KEY = "9265471A9CBF3D568A13D3C481532C18".decode("hex")
-IV = "4E0341DEE6BBAA416419B3EAE8F53BD9".decode("hex")
+WIFI_KEY = "9265471A9CBF3D568A13D3C481532C18".decode("hex")
+WIFI_IV = "4E0341DEE6BBAA416419B3EAE8F53BD9".decode("hex")
+
+SD_KEY = "AB01B9D8E1622B08AFBAD84DBFC2A55D".decode("hex")
+SD_IV = "4E0341DEE6BBAA416419B3EAE8F53BD9".decode("hex")
+
+KEY_IV_MAP = {
+    "WIFI": (WIFI_KEY, WIFI_IV),
+    "SD": (SD_KEY, SD_IV)
+}
 
 
-def decrypt(data):
-    cipher = AES.new(KEY, AES.MODE_CBC, IV)
+def decrypt(data, key, iv):
+    cipher = AES.new(key, AES.MODE_CBC, iv)
     return cipher.decrypt(data)
 
 
-def encrypt(data):
-    cipher = AES.new(KEY, AES.MODE_CBC, IV)
+def encrypt(data, key, iv):
+    cipher = AES.new(key, AES.MODE_CBC, iv)
     return cipher.encrypt(data)
 
 
@@ -46,15 +54,22 @@ if __name__ == "__main__":
     parser.add_argument("-e", "--encrypt",
                         type=str, nargs="+",
                         help="encrypt SSBB DLS1 files")
+    parser.add_argument("-s", "--sd",
+                        action="store_true",
+                        help="use SD key for encryption/decryption")
 
     args = parser.parse_args()
+    if args.sd:
+        key, iv = KEY_IV_MAP["SD"]
+    else:
+        key, iv = KEY_IV_MAP["WIFI"]
     if args.decrypt:
         for path in args.decrypt:
             fname, fext = os.path.splitext(path)
             with open(fname + ".dec" + fext, "wb") as f:
-                f.write(decrypt(open(path, "rb").read()))
+                f.write(decrypt(open(path, "rb").read(), key, iv))
     if args.encrypt:
         for path in args.encrypt:
             fname, fext = os.path.splitext(path)
             with open(fname + ".enc" + fext, "wb") as f:
-               f.write(encrypt(open(path, "rb").read()))
+                f.write(encrypt(open(path, "rb").read(), key, iv))
