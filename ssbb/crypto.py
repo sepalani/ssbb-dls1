@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-"""SSBB DLS1 utils.
+"""SSBB crypto module.
 
     SSBB DLS1 Project
     Copyright (C) 2018  Sepalani
